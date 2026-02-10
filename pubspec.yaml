@@ -47,10 +47,12 @@ dev_dependencies:
 #   ios: true
 #   image_path: "assets/imagen/tiky-tiky-icon.png"
 #   min_sdk_android: 21
+
 # dart run android_notification_icons
 # android_notification_icons:
 #   image_path: "assets/imagen/tiky-tiky-icon-notification.png"
 #   icon_name: 'ic_notification' # optional
+
 flutter:
   # para el idioma hay que agregar esto
   generate: true
