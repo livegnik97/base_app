@@ -67,7 +67,6 @@ Para firebase y notificaciones: /////////////////////////////
   2- Ejecuta el comando siguiente
     flutterfire configure
   3- revisar en el Manifest.xml los permisos y estilos de las notificaciones
-
 */
 
 void main() async {

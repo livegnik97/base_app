@@ -65,4 +65,14 @@ class UserModel {
     weight: weight,
     role: role,
   );
+
+  factory UserModel.fromEntity(UserEntity entity) => UserModel(
+    id: entity.id,
+    name: entity.name,
+    email: entity.email,
+    phone: entity.phone,
+    age: entity.age,
+    weight: entity.weight,
+    role: entity.role,
+  );
 }
