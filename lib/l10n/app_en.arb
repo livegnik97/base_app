@@ -1,0 +1,29 @@
+{
+    "accept": "Aceptar",
+    "cancel": "Cancelar",
+    "updating": "Actualizando",
+    "processing": "Procesando",
+    "delete": "Eliminar",
+
+    "validForm_campoRequerido": "Campo requerido",
+    "validForm_formatoIncorrecto": "Formato incorrecto",
+    "validForm_longitud": "Debe poseer mínimo {cant} caracteres",
+    "validForm_invalid_char": "Caracteres no válidos",
+    "validForm_confirmPassword": "Debe coincidir con la contraseña",
+    "validForm_outRangeValue": "Valor fuera de rango",
+    "validForm_notNegativeValue": "No puede ser negativo",
+    "validForm_insecurePassword": "Contraseña insegura",
+
+    "errorType_noConnection": "No hay conexión a internet.",
+    "errorType_noLogin": "Error al iniciar sesión. Revise su conexión a internet e intente nuevamente.",
+    "errorType_noAuth": "Correo o contraseña incorrectos. Revise e intente nuevamente.",
+    "errorType_userNotFound": "Usuario no encontrado.",
+    "errorType_noSendCode": "No se pudo enviar el código. Revise su conexión a internet e intente nuevamente.",
+    "errorType_incorrectActivationCode": "Código de activación incorrecto",
+
+    "selectLanguage": "Seleccione el idioma",
+    "language": "Lenguaje",
+    "languageEs": "Español",
+    "languageEn": "Inglés",
+    "selectLanguageDetails": "Seleccione el idioma que deseas para trabajar en la aplicación. En los ajustes puedes volver a cambiarlo cuando quieras."
+}
