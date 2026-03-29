@@ -15,11 +15,11 @@ class UserEndpoints extends UserRemoteRepository {
   @override
   Future<CustomResponse<UserEntity>> getMyInfo() async {
     try {
-      final res = await _myDio.get(path: "$localPath/me");
-      if (res?.data == null) return CustomResponse(statusCode: 400);
+      final (res, data) = await _myDio.get(path: "$localPath/me");
+      if (data == null) return CustomResponse(statusCode: 400);
       return CustomResponse(
-        statusCode: 200,
-        data: UserModel.fromMap(res!['user']).toEntity(),
+        statusCode: res.statusCode ?? 200,
+        data: UserModel.fromMap(data).toEntity(),
       );
     } on CustomDioError catch (e) {
       return CustomResponse(

@@ -18,7 +18,7 @@ class AuthEndpoints extends AuthRemoteRepository {
     required String firebaseToken,
   }) async {
     try {
-      final res = await _myDio.post(
+      final (res, data) = await _myDio.post(
         path: "$localPath/login",
         data: {
           "email": email,
@@ -27,10 +27,10 @@ class AuthEndpoints extends AuthRemoteRepository {
           "firebaseToken": firebaseToken,
         },
       );
-      final token = res!['token'];
+      final token = data!['token'];
       _myDio.updateToken(token);
       await MyShared.setValue(MySharedConstants.accessToken, token);
-      return CustomResponse(statusCode: 200, type: res.type, data: token);
+      return CustomResponse(statusCode: res.statusCode ?? 200, data: token);
     } on CustomDioError catch (e) {
       return CustomResponse(
         statusCode: e.code,

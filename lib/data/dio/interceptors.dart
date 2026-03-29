@@ -5,10 +5,10 @@ const bool showDioError = true;
 
 class CustomInterceptors extends Interceptor {
   // static final _header = {"content-type": "application/json; charset=utf-8"};
-  final String? _token;
   final List<RequestOptions> requests = [];
 
-  CustomInterceptors([this._token]);
+  String? token;
+  CustomInterceptors();
 
   @override
   void onRequest(
@@ -23,8 +23,8 @@ class CustomInterceptors extends Interceptor {
     }
 
     //* agrega el token a la header si existe
-    if (_token != null && _token.isNotEmpty) {
-      options.headers.addAll({'authorization': "Bearer $_token"});
+    if (token != null && token!.isNotEmpty) {
+      options.headers.addAll({'authorization': "Bearer $token"});
     }
 
     super.onRequest(options, handler);

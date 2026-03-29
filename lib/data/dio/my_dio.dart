@@ -14,10 +14,10 @@ part "interceptors.dart";
 
 enum RequestType { GET, POST, PUT, DELETE, PATCH }
 
-enum APIVersion { V1, V2 }
-
 class MyDio {
   late Dio _dio;
+
+  late CustomInterceptors currentInterceptor;
 
   MyDio(String baseUrl) {
     _dio = Dio(
@@ -35,83 +35,72 @@ class MyDio {
         },
       ),
     );
-    _dio.interceptors.add(CustomInterceptors(""));
+    currentInterceptor = CustomInterceptors();
+    _dio.interceptors.add(currentInterceptor);
   }
 
   void updateToken(String? token) {
-    _dio.interceptors.clear();
-    _dio.interceptors.add(CustomInterceptors(token));
+    currentInterceptor.token = token;
   }
 
-  Future<dynamic> get({
+  Future<(Response<dynamic>, dynamic)> get({
     required String path,
-    bool requiredResponse = true,
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? data,
   }) => request(
     requestType: RequestType.GET,
     path: path,
-    requiredResponse: requiredResponse,
     queryParameters: queryParameters,
     data: data,
   );
 
-  Future<dynamic> post({
+  Future<(Response<dynamic>, dynamic)> post({
     required String path,
-    bool requiredResponse = true,
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? data,
   }) => request(
     requestType: RequestType.POST,
     path: path,
-    requiredResponse: requiredResponse,
     queryParameters: queryParameters,
     data: data,
   );
 
-  Future<dynamic> patch({
+  Future<(Response<dynamic>, dynamic)> patch({
     required String path,
-    bool requiredResponse = true,
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? data,
   }) => request(
     requestType: RequestType.PATCH,
     path: path,
-    requiredResponse: requiredResponse,
     queryParameters: queryParameters,
     data: data,
   );
 
-  Future<dynamic> delete({
+  Future<(Response<dynamic>, dynamic)> delete({
     required String path,
-    bool requiredResponse = true,
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? data,
   }) => request(
     requestType: RequestType.DELETE,
     path: path,
-    requiredResponse: requiredResponse,
     queryParameters: queryParameters,
     data: data,
   );
 
-  Future<dynamic> put({
+  Future<(Response<dynamic>, dynamic)> put({
     required String path,
-    bool requiredResponse = true,
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? data,
   }) => request(
     requestType: RequestType.PUT,
     path: path,
-    requiredResponse: requiredResponse,
     queryParameters: queryParameters,
     data: data,
   );
 
-  Future<dynamic> request({
+  Future<(Response<dynamic>, dynamic)> request({
     required RequestType requestType,
     required String path,
-    bool requiredResponse = true,
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? data,
   }) async {
@@ -146,10 +135,11 @@ class MyDio {
           );
           break;
       }
-      if (!requiredResponse) return null;
-      return (response.data is String)
-          ? jsonDecode(response.data)
-          : response.data;
+      try {
+        return (response, jsonDecode(response.data));
+      } catch (_) {
+        return (response, response.data);
+      }
     } on DioException catch (e) {
       CustomPrint.call("DioException: ${e.message}");
       throw CustomDioError(
@@ -164,10 +154,48 @@ class MyDio {
     }
   }
 
-  Future<dynamic> requestMultipart({
+  Future<(Response<dynamic>, dynamic)> postMultipart({
+    required String path,
+    Map<String, dynamic>? queryParameters,
+    required FormData data,
+    Options? options,
+  }) => requestMultipart(
+    requestType: RequestType.POST,
+    path: path,
+    queryParameters: queryParameters,
+    data: data,
+    options: options,
+  );
+
+  Future<(Response<dynamic>, dynamic)> patchMultipart({
+    required String path,
+    Map<String, dynamic>? queryParameters,
+    required FormData data,
+    Options? options,
+  }) => requestMultipart(
+    requestType: RequestType.PATCH,
+    path: path,
+    queryParameters: queryParameters,
+    data: data,
+    options: options,
+  );
+
+  Future<(Response<dynamic>, dynamic)> putMultipart({
+    required String path,
+    Map<String, dynamic>? queryParameters,
+    required FormData data,
+    Options? options,
+  }) => requestMultipart(
+    requestType: RequestType.PUT,
+    path: path,
+    queryParameters: queryParameters,
+    data: data,
+    options: options,
+  );
+
+  Future<(Response<dynamic>, dynamic)> requestMultipart({
     required RequestType requestType,
     required String path,
-    bool requiredResponse = true,
     Map<String, dynamic>? queryParameters,
     FormData? data,
     Options? options,
@@ -206,10 +234,11 @@ class MyDio {
         default:
           throw "Request type not found";
       }
-      if (!requiredResponse) return null;
-      return (response.data is String)
-          ? jsonDecode(response.data)
-          : response.data;
+      try {
+        return (response, jsonDecode(response.data));
+      } catch (_) {
+        return (response, response.data);
+      }
     } on DioException catch (e) {
       CustomPrint.call("DioException: ${e.message}");
       throw CustomDioError(
