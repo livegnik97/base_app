@@ -3,7 +3,7 @@ import 'package:base_app/core/extensions/double_utils.dart';
 import 'package:base_app/core/helpers/dialog_manager.dart';
 import 'package:base_app/presentation/dialogs/dialog_loading.dart';
 import 'package:base_app/presentation/dialogs/dialog_select_language.dart';
-import 'package:base_app/presentation/modules/home/provider/home_provider.riverpod.dart';
+import 'package:base_app/presentation/modules/home/providers/home.provider.riverpod.dart';
 import 'package:base_app/presentation/providers/conectivity_status/connectivity_status_provider.riverpod.dart';
 import 'package:base_app/presentation/providers/socketio/socketio_provider.dart';
 import 'package:base_app/presentation/widgets/buttons/custom_filled_button.dart';

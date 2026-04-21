@@ -1,20 +1,24 @@
+// ignore: depend_on_referenced_packages
+import 'package:mime/mime.dart';
+
 extension StringUtils on String {
-  bool containsPlusUltra(String term) {
+  String toPureString() {
     final String withDia =
         'ÀÁÂÃÄÅàáâãäåÒÓÔÕÕÖØòóôõöøÈÉÊËèéêëðÇçÐÌÍÎÏìíîïÙÚÛÜùúûüÑñŠšŸÿýŽž';
     final String withoutDia =
         'AAAAAAaaaaaaOOOOOOOooooooEEEEeeeeeCcDIIIIiiiiUUUUuuuuNnSsYyyZz';
 
     String thisCad = toString().trim();
-    String termCad = term.trim();
-
     for (int i = 0; i < withDia.length; i++) {
       thisCad = thisCad.replaceAll(withDia[i], withoutDia[i]);
-      termCad = termCad.replaceAll(withDia[i], withoutDia[i]);
     }
 
-    thisCad = thisCad.toLowerCase();
-    termCad = termCad.toLowerCase();
+    return thisCad;
+  }
+
+  bool containsPlusUltra(String term) {
+    String thisCad = toPureString().toLowerCase();
+    String termCad = term.toPureString().toLowerCase();
 
     bool isContains = thisCad.contains(termCad);
     if (isContains) return true;
@@ -53,4 +57,15 @@ extension StringUtils on String {
     }
     return false;
   }
+
+  bool get isImage =>
+      lookupMimeType(this)?.toLowerCase().startsWith('image/') ?? false;
+
+  bool get isVideo =>
+      lookupMimeType(this)?.toLowerCase().startsWith('video/') ?? false;
+
+  bool get isAudio =>
+      lookupMimeType(this)?.toLowerCase().startsWith('audio/') ?? false;
+
+  bool get isDigit => RegExp(r'^[0-9]+$').hasMatch(this);
 }

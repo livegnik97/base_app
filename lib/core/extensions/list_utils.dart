@@ -10,4 +10,9 @@ extension ListUtils<T> on List<T> {
     final index = indexWhere(test);
     return index >= 0 ? this[index] : null;
   }
+
+  Iterable<E> mapWithIndex<E>(E Function(T e, int index) toElement) {
+    int index = 0;
+    return map((e) => toElement(e, index++));
+  }
 }

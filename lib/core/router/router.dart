@@ -1,4 +1,4 @@
-import 'package:base_app/presentation/modules/home/home_page.dart';
+import 'package:base_app/presentation/modules/home/home.page.dart';
 import 'package:go_router/go_router.dart';
 
 import 'router_path.dart';
