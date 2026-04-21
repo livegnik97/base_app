@@ -66,6 +66,11 @@ class _CustomScrollVerticalBackWidgetState
                 controller: pageController,
                 physics: AlwaysScrollableScrollPhysics(),
                 scrollDirection: Axis.vertical,
+                onPageChanged: (value) {
+                  try {
+                    pageController.jumpToPage(1);
+                  } catch (_) {}
+                },
                 children: [
                   Container(),
                   Container(
