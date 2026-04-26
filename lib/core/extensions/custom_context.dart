@@ -131,6 +131,49 @@ extension CustomContext on BuildContext {
   //* ViewInsets, para poner padding en los dialogs para que suban cuando sale el teclado
   EdgeInsets get viewInsets => MediaQuery.of(this).viewInsets;
 
+  //* Close keyboard
+  void closeKeyboard() async {
+    try {
+      FocusScope.of(this).unfocus();
+    } catch (_) {}
+  }
+
+  //* Is this the page currently visible?
+  /*
+  true - es la pagina actualmente visible en la pantalla
+  false - no es la pagina actualmente visible en la pantalla, hay que hacer pop para llegar
+  null - el context no esta montado o no esta asociado a la ruta, es decir, no es un contexto de una pagina
+  */
+  bool? get isThisPageCurrentlyVisible {
+    try {
+      final modalRoute = ModalRoute.of(this);
+      if (modalRoute != null) {
+        return modalRoute.isCurrent;
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  //* Close until current page (Da atras hasta la pagina actual)
+  void popUntilCurrentPage() {
+    try {
+      Navigator.of(this).popUntil((_) {
+        if (isThisPageCurrentlyVisible == false) {
+          return true;
+        }
+        return false;
+      });
+    } catch (_) {}
+  }
+
+  //* CLose until current page and exit (Da atras hasta la pagina actual y sale)
+  void popUntilCurrentPageAndExit() {
+    try {
+      popUntilCurrentPage();
+      Navigator.of(this).pop();
+    } catch (_) {}
+  }
+
   // //* Get all color scheme widget
   Widget get getAllColorMostDetailsWidget {
     Map<String, Color> primaryColors = {
