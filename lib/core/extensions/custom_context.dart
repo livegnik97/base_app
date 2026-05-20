@@ -157,12 +157,9 @@ extension CustomContext on BuildContext {
   //* Close until current page (Da atras hasta la pagina actual)
   void popUntilCurrentPage() {
     try {
-      Navigator.of(this).popUntil((_) {
-        if (isThisPageCurrentlyVisible == false) {
-          return true;
-        }
-        return false;
-      });
+      while (isThisPageCurrentlyVisible == false) {
+        pop();
+      }
     } catch (_) {}
   }
 
