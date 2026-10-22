@@ -18,4 +18,20 @@ class TimeUtils {
     final f = DateFormat('dd/MM/yyy, hh:mm a');
     return f.format(date);
   }
+
+  static String formatHumanRelative(DateTime date) {
+    final ahora = DateTime.now();
+    final hoy = DateTime(ahora.year, ahora.month, ahora.day);
+    final ayer = hoy.subtract(const Duration(days: 1));
+
+    final fechaComparar = DateTime(date.year, date.month, date.day);
+
+    if (fechaComparar == hoy) {
+      return 'Hoy a las ${DateFormat('hh:mm a').format(date)}';
+    } else if (fechaComparar == ayer) {
+      return 'Ayer a las ${DateFormat('hh:mm a').format(date)}';
+    } else {
+      return DateFormat('dd/MM/yyyy, hh:mm a').format(date);
+    }
+  }
 }

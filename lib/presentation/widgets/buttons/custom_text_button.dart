@@ -9,7 +9,7 @@ class CustomTextButton extends StatelessWidget {
     required this.label,
     this.imageAsset,
     this.borderRadius = Constants.borderRadius,
-    this.height,
+    this.height = 50,
     this.width,
     this.color,
     this.backgroundColor,

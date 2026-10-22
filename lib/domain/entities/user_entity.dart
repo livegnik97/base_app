@@ -1,24 +1,30 @@
-import 'package:flutter/widgets.dart';
-
 import 'package:base_app/domain/enums/user_role.enum.dart';
 
 class UserEntity {
-  final int id;
+  final String id;
+  final List<UserRoleEnum> roles;
+  final bool isValid;
+  final bool hasSessionActive;
   final String name;
+  final String? lastName;
   final String email;
-  final String phone;
-  final int? age;
-  final double? weight;
-  final UserRoleEnum role;
+  final String? phone;
+  final String? phoneAlt;
+  final String? sessionId;
+  final bool hasFreeTrial;
 
   UserEntity({
     required this.id,
+    required this.roles,
+    required this.isValid,
+    required this.hasSessionActive,
     required this.name,
+    this.lastName,
     required this.email,
-    required this.phone,
-    this.age,
-    this.weight,
-    required this.role,
+    this.phone,
+    this.phoneAlt,
+    this.sessionId,
+    required this.hasFreeTrial,
   });
 
   @override
@@ -32,23 +38,15 @@ class UserEntity {
     return id.hashCode;
   }
 
-  UserEntity copyWith({
-    int? id,
-    String? name,
-    String? email,
-    String? phone,
-    ValueGetter<int?>? age,
-    ValueGetter<double?>? weight,
-    UserRoleEnum? role,
-  }) {
-    return UserEntity(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      email: email ?? this.email,
-      phone: phone ?? this.phone,
-      age: age != null ? age() : this.age,
-      weight: weight != null ? weight() : this.weight,
-      role: role ?? this.role,
-    );
+  //* Roles session
+  bool get isSuperAdmin => roles.contains(UserRoleEnum.superadmin);
+  bool get isAdmin => roles.contains(UserRoleEnum.admin) || isSuperAdmin;
+  bool get isModerator =>
+      roles.contains(UserRoleEnum.moderator) || isAdmin || isSuperAdmin;
+  bool get isClient => true;
+
+  String fullName() {
+    final lastName = this.lastName ?? '';
+    return lastName.isEmpty ? name : '$name $lastName';
   }
 }

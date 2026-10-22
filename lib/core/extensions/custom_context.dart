@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
+import 'package:base_app/l10n/app_localizations.dart';
 
 /*
   MODO DE USO
@@ -15,6 +17,9 @@ import 'package:flutter/services.dart';
 */
 
 extension CustomContext on BuildContext {
+  //* Theme
+  ThemeData get theme => Theme.of(this);
+
   //* Colors
   ColorScheme get colorScheme => Theme.of(this).colorScheme;
 
@@ -614,4 +619,6 @@ extension CustomContext on BuildContext {
       ),
     );
   }
+
+  AppLocalizations get l10n => AppLocalizations.of(this)!;
 }

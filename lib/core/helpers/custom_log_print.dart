@@ -1,5 +1,6 @@
 import 'dart:async' show Zone;
 import 'dart:developer' as log_dev;
+import 'dart:developer';
 
 import '../constants/constants.dart';
 
@@ -24,7 +25,7 @@ class CustomPrint {
   static void call(String message) {
     if (Constants.isDev) {
       // ignore: avoid_print
-      print(message);
+      log('CustomLogBase - $message');
     }
   }
 }

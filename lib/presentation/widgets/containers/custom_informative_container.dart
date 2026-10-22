@@ -9,21 +9,26 @@ class CustomInformativeContainer extends StatelessWidget {
     this.icon,
     required this.color,
     this.isVisible = true,
+    this.margin,
   });
 
   final String text;
   final IconData? icon;
   final Color color;
   final bool isVisible;
+  final EdgeInsetsGeometry? margin;
 
   @override
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
-      transitionBuilder: (child, animation) =>
-          ScaleTransition(scale: animation, child: child),
+      transitionBuilder: (child, animation) => ScaleTransition(
+        scale: animation,
+        child: FadeTransition(opacity: animation, child: child),
+      ),
       child: isVisible
           ? Container(
+              margin: margin,
               padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: color.withAlpha((255 * 0.1).round()),

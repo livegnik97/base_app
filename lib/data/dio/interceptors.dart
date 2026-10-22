@@ -1,13 +1,13 @@
 part of "my_dio.dart";
 
-//* cambiar esto para false para que no se muestre el error en el dio
-const bool showDioError = true;
-
 class CustomInterceptors extends Interceptor {
   // static final _header = {"content-type": "application/json; charset=utf-8"};
   final List<RequestOptions> requests = [];
 
   String? token;
+  String? language;
+  String? infoDevice;
+
   CustomInterceptors();
 
   @override
@@ -16,15 +16,30 @@ class CustomInterceptors extends Interceptor {
     RequestInterceptorHandler handler,
   ) async {
     CustomPrint.call('REQUEST[${options.method}] => PATH: ${options.path}');
+    if (options.queryParameters.isNotEmpty) {
+      CustomPrint.call(
+        'REQUEST[${options.method}] => QUERY: ${options.queryParameters}',
+      );
+    }
 
     //* agrega el request a la lista de requests
-    if (Constants.isDev && showDioError) {
+    if (Constants.isDev && Constants.showDioError) {
       requests.add(options);
     }
 
     //* agrega el token a la header si existe
     if (token != null && token!.isNotEmpty) {
       options.headers.addAll({'authorization': "Bearer $token"});
+    }
+
+    //* agrega el infoDevice a la header si existe
+    if (infoDevice != null && infoDevice!.isNotEmpty) {
+      options.headers.addAll({'user-agent': infoDevice});
+    }
+
+    //* agrega el language a la header si existe
+    if (language != null && language!.isNotEmpty) {
+      options.headers.addAll({'language': language});
     }
 
     super.onRequest(options, handler);
@@ -35,9 +50,14 @@ class CustomInterceptors extends Interceptor {
     CustomPrint.call(
       'RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions.path}',
     );
+    // CustomPrint.call(
+    //   'RESPONSE DATA => ${response.data.toString()}',
+    // );
+
+    // CustomPrint.call('RESPONSE => DATA: ${response.data}');
 
     //* remove el request de la lista de requests
-    if (Constants.isDev && showDioError) {
+    if (Constants.isDev && Constants.showDioError) {
       if (requests.isNotEmpty) {
         try {
           removeRequest(response.requestOptions.path);
@@ -55,7 +75,7 @@ class CustomInterceptors extends Interceptor {
     // CustomPrint.call('ERROR[${err.response?.statusCode}] => DATA: ${err.requestOptions.data}');
 
     //* elimina el request de la lista de requests y lo muestra en el modal
-    if (Constants.isDev && showDioError) {
+    if (Constants.isDev && Constants.showDioError) {
       RequestOptions? request;
       if (requests.isNotEmpty) {
         try {
@@ -65,13 +85,15 @@ class CustomInterceptors extends Interceptor {
 
       if (MyApp.context != null) {
         Future.delayed(const Duration(milliseconds: 1000), () {
-          showModalBottomSheet(
-            context: MyApp.context!,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            isDismissible: true,
-            builder: (_) => ErrorDioDescription(request: request, err: err),
-          );
+          try {
+            showModalBottomSheet(
+              context: MyApp.context!,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              isDismissible: true,
+              builder: (_) => ErrorDioDescription(request: request, err: err),
+            );
+          } catch (_) {}
         });
       }
     }

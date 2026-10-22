@@ -14,6 +14,8 @@ part "interceptors.dart";
 
 enum RequestType { GET, POST, PUT, DELETE, PATCH }
 
+enum APIVersion { V1, V2 }
+
 class MyDio {
   late Dio _dio;
 
@@ -23,6 +25,7 @@ class MyDio {
     _dio = Dio(
       BaseOptions(
         baseUrl: baseUrl,
+        listFormat: ListFormat.multiCompatible,
         headers: {
           // "Access-Control-Allow-Origin": "*",
           // "Access-Control-Allow-Credentials": "true",
@@ -39,68 +42,87 @@ class MyDio {
     _dio.interceptors.add(currentInterceptor);
   }
 
+  void updateLanguage(String? language) {
+    currentInterceptor.language = language;
+  }
+
+  void updateInfoDevice(String? infoDevice) {
+    currentInterceptor.infoDevice = infoDevice;
+  }
+
   void updateToken(String? token) {
     currentInterceptor.token = token;
   }
 
-  Future<(Response<dynamic>, dynamic)> get({
+  Future<dynamic> get({
     required String path,
+    bool requiredResponse = true,
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? data,
   }) => request(
     requestType: RequestType.GET,
     path: path,
+    requiredResponse: requiredResponse,
     queryParameters: queryParameters,
     data: data,
   );
 
-  Future<(Response<dynamic>, dynamic)> post({
+  Future<dynamic> post({
     required String path,
+    bool requiredResponse = true,
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? data,
   }) => request(
     requestType: RequestType.POST,
     path: path,
+    requiredResponse: requiredResponse,
     queryParameters: queryParameters,
     data: data,
   );
 
-  Future<(Response<dynamic>, dynamic)> patch({
+  Future<dynamic> patch({
     required String path,
+    bool requiredResponse = true,
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? data,
   }) => request(
     requestType: RequestType.PATCH,
     path: path,
+    requiredResponse: requiredResponse,
     queryParameters: queryParameters,
     data: data,
   );
 
-  Future<(Response<dynamic>, dynamic)> delete({
+  Future<dynamic> delete({
     required String path,
+    bool requiredResponse = true,
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? data,
   }) => request(
     requestType: RequestType.DELETE,
     path: path,
+    requiredResponse: requiredResponse,
     queryParameters: queryParameters,
     data: data,
   );
 
-  Future<(Response<dynamic>, dynamic)> put({
+  Future<dynamic> put({
     required String path,
+    bool requiredResponse = true,
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? data,
   }) => request(
     requestType: RequestType.PUT,
     path: path,
+    requiredResponse: requiredResponse,
     queryParameters: queryParameters,
     data: data,
   );
 
-  Future<(Response<dynamic>, dynamic)> request({
+  Future<dynamic> request({
     required RequestType requestType,
     required String path,
+    bool requiredResponse = true,
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? data,
   }) async {
@@ -135,18 +157,19 @@ class MyDio {
           );
           break;
       }
+      if (!requiredResponse) return null;
       try {
-        return (response, jsonDecode(response.data));
+        return jsonDecode(response.data);
       } catch (_) {
-        return (response, response.data);
+        return response.data;
       }
     } on DioException catch (e) {
       CustomPrint.call("DioException: ${e.message}");
       throw CustomDioError(
         code: e.response?.statusCode ?? 400,
-        message: e.response?.data['message'] ?? e.message,
+        message: e.response?.data['message']?.toString() ?? e.message,
         type: e.response?.data['type'],
-        data: e.response?.data['data'],
+        data: e.response?.data,
       );
     } catch (e) {
       CustomPrint.call("Exception: ${e.toString()}");
@@ -154,50 +177,57 @@ class MyDio {
     }
   }
 
-  Future<(Response<dynamic>, dynamic)> postMultipart({
+  Future<dynamic> postMultipart({
     required String path,
+    bool requiredResponse = true,
     Map<String, dynamic>? queryParameters,
     required FormData data,
     Options? options,
   }) => requestMultipart(
     requestType: RequestType.POST,
     path: path,
+    requiredResponse: requiredResponse,
     queryParameters: queryParameters,
     data: data,
     options: options,
   );
 
-  Future<(Response<dynamic>, dynamic)> patchMultipart({
+  Future<dynamic> patchMultipart({
     required String path,
+    bool requiredResponse = true,
     Map<String, dynamic>? queryParameters,
     required FormData data,
     Options? options,
   }) => requestMultipart(
     requestType: RequestType.PATCH,
     path: path,
+    requiredResponse: requiredResponse,
     queryParameters: queryParameters,
     data: data,
     options: options,
   );
 
-  Future<(Response<dynamic>, dynamic)> putMultipart({
+  Future<dynamic> putMultipart({
     required String path,
+    bool requiredResponse = true,
     Map<String, dynamic>? queryParameters,
     required FormData data,
     Options? options,
   }) => requestMultipart(
     requestType: RequestType.PUT,
     path: path,
+    requiredResponse: requiredResponse,
     queryParameters: queryParameters,
     data: data,
     options: options,
   );
 
-  Future<(Response<dynamic>, dynamic)> requestMultipart({
+  Future<dynamic> requestMultipart({
     required RequestType requestType,
     required String path,
+    bool requiredResponse = true,
     Map<String, dynamic>? queryParameters,
-    FormData? data,
+    required FormData data,
     Options? options,
   }) async {
     try {
@@ -234,18 +264,19 @@ class MyDio {
         default:
           throw "Request type not found";
       }
+      if (!requiredResponse) return null;
       try {
-        return (response, jsonDecode(response.data));
+        return jsonDecode(response.data);
       } catch (_) {
-        return (response, response.data);
+        return response.data;
       }
     } on DioException catch (e) {
       CustomPrint.call("DioException: ${e.message}");
       throw CustomDioError(
         code: e.response?.statusCode ?? 400,
-        message: e.response?.data['message'] ?? e.message,
+        message: e.response?.data['message']?.toString() ?? e.message,
         type: e.response?.data['type'],
-        data: e.response?.data['data'],
+        data: e.response?.data,
       );
     } catch (e) {
       CustomPrint.call("Exception: ${e.toString()}");

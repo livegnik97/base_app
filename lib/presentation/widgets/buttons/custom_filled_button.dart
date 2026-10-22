@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:base_app/core/constants/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:base_app/presentation/widgets/shared/custom_loading_widget.dart';
 
 class CustomFilledButton extends StatelessWidget {
   const CustomFilledButton({
@@ -9,11 +10,13 @@ class CustomFilledButton extends StatelessWidget {
     this.imageAsset,
     required this.label,
     this.borderRadius = Constants.borderRadius,
-    this.height,
+    this.height = 50,
     this.width,
     this.color,
     this.labelColor,
+    this.isLoading = false,
     this.centerContent = true,
+    this.borderSide,
     this.onPressed,
     this.onLongPress,
   });
@@ -27,6 +30,8 @@ class CustomFilledButton extends StatelessWidget {
   final Color? color;
   final Color? labelColor;
   final bool centerContent;
+  final bool isLoading;
+  final BorderSide? borderSide;
   final VoidCallback? onPressed;
   final VoidCallback? onLongPress;
 
@@ -36,26 +41,31 @@ class CustomFilledButton extends StatelessWidget {
       backgroundColor: color,
       foregroundColor: labelColor,
       alignment: centerContent ? null : const Alignment(-1, 0),
+      side: borderSide,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(borderRadius),
+        borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
       ),
     );
 
     final button = (icon != null || imageAsset != null)
         ? FilledButton.icon(
             style: buttonStyle,
-            label: AutoSizeText(label, maxLines: 1, minFontSize: 1),
+            label: isLoading
+                ? CustomLoadingWidget()
+                : AutoSizeText(label, maxLines: 1, minFontSize: 1),
             icon: imageAsset != null
                 ? Image.asset(imageAsset!, width: 25, height: 25)
                 : Icon(icon),
-            onPressed: onPressed,
-            onLongPress: onLongPress,
+            onPressed: isLoading ? null : onPressed,
+            onLongPress: isLoading ? null : onLongPress,
           )
         : FilledButton(
             style: buttonStyle,
-            onPressed: onPressed,
-            onLongPress: onLongPress,
-            child: AutoSizeText(label, maxLines: 1, minFontSize: 1),
+            onPressed: isLoading ? null : onPressed,
+            onLongPress: isLoading ? null : onLongPress,
+            child: isLoading
+                ? CustomLoadingWidget()
+                : AutoSizeText(label, maxLines: 1, minFontSize: 1),
           );
 
     if (height != null || width != null) {

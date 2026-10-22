@@ -1,18 +1,24 @@
 import 'dart:ui';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:base_app/data/shared_preferences/my_shared.dart';
+import 'package:base_app/domain/repositories/remote/usecases/user_remote_repository.dart';
 import 'package:base_app/l10n/l10n.dart';
-import 'package:flutter_riverpod/legacy.dart';
 
-final localeProvider = StateNotifierProvider<LocaleNotifier, LocaleState>((
-  ref,
-) {
-  return LocaleNotifier();
-});
+import 'package:base_app/presentation/providers/data/api_provider.riverpod.dart';
 
-class LocaleNotifier extends StateNotifier<LocaleState> {
-  LocaleNotifier() : super(LocaleState()) {
-    init();
+final localeProvider = NotifierProvider<LocaleNotifier, LocaleState>(
+  LocaleNotifier.new,
+);
+
+class LocaleNotifier extends Notifier<LocaleState> {
+  late final UserRemoteRepository _userApi;
+
+  @override
+  build() {
+    _userApi = ref.read(apiProvider).user;
+    Future.delayed(Duration.zero, () => init());
+    return LocaleState();
   }
 
   Future<void> init() async {
@@ -20,6 +26,7 @@ class LocaleNotifier extends StateNotifier<LocaleState> {
       MySharedConstants.languageSelect,
       L10n.all[0].languageCode,
     );
+    _userApi.changeLanguage(locale);
     state = state.copyWith(locale: Locale(locale));
   }
 
@@ -36,6 +43,7 @@ class LocaleNotifier extends StateNotifier<LocaleState> {
       MySharedConstants.languageSelect,
       locale.languageCode,
     );
+    _userApi.changeLanguage(locale.languageCode);
     state = state.copyWith(locale: locale);
   }
 }

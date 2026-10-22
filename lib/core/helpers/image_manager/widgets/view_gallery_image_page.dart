@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:base_app/presentation/widgets/shared/custom_bottom_dots_page.dart';
 
-import '../../../extensions/custom_context.dart';
 import 'view_image_page.dart';
 
 class ImageItem {
@@ -20,10 +20,12 @@ class ViewGalleryImagePage extends StatefulWidget {
     super.key,
     this.initialPage = 0,
     required this.imagesItem,
+    this.onChangedPage,
   });
 
   final int initialPage;
   final List<ImageItem> imagesItem;
+  final void Function(int)? onChangedPage;
 
   @override
   State<ViewGalleryImagePage> createState() => _ViewGalleryImagePageState();
@@ -62,41 +64,58 @@ class _ViewGalleryImagePageState extends State<ViewGalleryImagePage> {
           }).toList(),
           onPageChanged: (value) {
             setState(() {
+              widget.onChangedPage?.call(value);
               currentPage = value;
             });
           },
         ),
         Positioned(
-          right: 16,
-          top: 16,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.grey.shade900.withAlpha(100),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: IconButton(
-              onPressed: context.pop,
-              icon: const Icon(Icons.close_outlined, color: Colors.white),
-            ),
-          ),
-        ),
-        Positioned(
-          left: 16,
-          top: 16,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.grey.shade900.withAlpha(100),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                "${currentPage + 1}/${widget.imagesItem.length}",
-                style: context.titleLarge.copyWith(color: Colors.white),
+          right: 8,
+          top: 0,
+          child: SafeArea(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.grey.shade900.withAlpha(100),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: IconButton(
+                onPressed: context.pop,
+                icon: const Icon(Icons.close_outlined, color: Colors.white),
               ),
             ),
           ),
         ),
+        if (widget.imagesItem.length > 1)
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 24,
+            child: SafeArea(
+              child: CustomBottomDotsPage(
+                currentPage: currentPage,
+                totalPages: widget.imagesItem.length,
+              ),
+            ),
+          ),
+        // Positioned(
+        //   left: 8,
+        //   top: 0,
+        //   child: SafeArea(
+        //     child: Container(
+        //       decoration: BoxDecoration(
+        //         color: Colors.grey.shade900.withAlpha(100),
+        //         borderRadius: BorderRadius.circular(8),
+        //       ),
+        //       child: Padding(
+        //         padding: const EdgeInsets.all(8.0),
+        //         child: Text(
+        //           "${currentPage + 1}/${widget.imagesItem.length}",
+        //           style: context.titleLarge.copyWith(color: Colors.white),
+        //         ),
+        //       ),
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }

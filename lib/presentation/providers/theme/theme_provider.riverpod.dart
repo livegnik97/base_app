@@ -1,19 +1,19 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:base_app/data/shared_preferences/my_shared.dart';
-import 'package:flutter_riverpod/legacy.dart';
 
-final themeProvider = StateNotifierProvider<ThemeNotifier, int>((ref) {
-  return ThemeNotifier();
-});
+final themeProvider = NotifierProvider<ThemeNotifier, int>(ThemeNotifier.new);
 
-class ThemeNotifier extends StateNotifier<int> {
-  ThemeNotifier() : super(1) {
-    init();
+class ThemeNotifier extends Notifier<int> {
+  @override
+  build() {
+    Future.delayed(Duration.zero, () => init());
+    return 0;
   }
 
   Future<void> init() async {
     final themeIndex = await MyShared.getInt(
       MySharedConstants.themeModeSelect,
-      1,
+      0,
     );
     state = themeIndex;
   }

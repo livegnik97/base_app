@@ -1,86 +1,54 @@
+import 'package:base_app/core/extensions/custom_context.dart';
 import 'package:base_app/presentation/widgets/cards/custom_card.dart';
 import 'package:flutter/material.dart';
 
 class CustomSnackbar {
-  static void showOriginal(
-    BuildContext context, {
-    required String text,
-    SnackBarAction? action,
-    Duration duration = const Duration(milliseconds: 4000),
-  }) {
-    if (text.isEmpty) return;
-    final snackbar = SnackBar(
-      content: Text(text),
-      action: action,
-      duration: duration,
-      backgroundColor: Theme.of(context).colorScheme.secondary,
-    );
-    ScaffoldMessenger.of(context)
-      ..clearSnackBars()
-      ..showSnackBar(snackbar);
-  }
+  // static void showOriginal(
+  //   BuildContext context, {
+  //   required String text,
+  //   SnackBarAction? action,
+  //   Duration duration = const Duration(milliseconds: 4000),
+  // }) {
+  //   if (text.isEmpty) return;
+  //   final snackbar = SnackBar(
+  //     content: Text(text),
+  //     action: action,
+  //     duration: duration,
+  //     backgroundColor: Theme.of(context).colorScheme.secondary,
+  //   );
+  //   ScaffoldMessenger.of(context)
+  //     ..clearSnackBars()
+  //     ..showSnackBar(snackbar);
+  // }
 
-  static void showCustom(
+  static void show(
     BuildContext context, {
     required String text,
+    IconData? icon,
+    Color? onColor,
+    Color? backgroundColor,
     SnackBarAction? action,
     Duration duration = const Duration(milliseconds: 4000),
   }) {
     if (text.isEmpty) return;
-    final color = Theme.of(context).colorScheme;
     final snackbar = SnackBar(
       content: CustomCard(
-        color: color.secondary,
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-        child: Row(
-          children: [
-            Flexible(
-              child: Text(
-                text,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium!.copyWith(color: color.onSecondary),
-              ),
-            ),
-          ],
-        ),
-      ),
-      action: action,
-      duration: duration,
-
-      elevation: 0,
-      backgroundColor: Colors.transparent,
-      // backgroundColor: color.secondary,
-    );
-    ScaffoldMessenger.of(context)
-      ..clearSnackBars()
-      ..showSnackBar(snackbar);
-  }
-
-  static void showWithIcon(
-    BuildContext context, {
-    required IconData icon,
-    required String text,
-    SnackBarAction? action,
-    Duration duration = const Duration(milliseconds: 4000),
-  }) {
-    if (text.isEmpty) return;
-    final color = Theme.of(context).colorScheme;
-    final snackbar = SnackBar(
-      content: CustomCard(
-        color: color.secondary,
+        color: backgroundColor ?? context.secondary,
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(icon, color: color.onSecondary),
-            const SizedBox(width: 10),
+            if (icon != null) ...[
+              Icon(icon, color: onColor ?? context.onSecondary),
+              const SizedBox(width: 8),
+            ],
             Flexible(
               child: Text(
-                text,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium!.copyWith(color: color.onSecondary),
+                text.trim(),
+                style: context.textTheme.bodyMedium!.copyWith(
+                  color: onColor ?? context.onSecondary,
+                ),
               ),
             ),
           ],

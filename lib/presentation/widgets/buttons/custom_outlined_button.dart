@@ -10,7 +10,7 @@ class CustomOutlinedButton extends StatelessWidget {
     required this.label,
     this.imageAsset,
     this.radius = Constants.borderRadius,
-    this.height,
+    this.height = 50,
     this.width,
     this.color,
     this.backgroundColor,

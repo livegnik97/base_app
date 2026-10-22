@@ -1,6 +1,7 @@
 // ignore_for_file: equal_elements_in_set
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:go_router/go_router.dart';
 import 'package:base_app/core/extensions/custom_context.dart';
 import 'package:base_app/core/helpers/clipboard_manager.dart';
 import 'package:flutter/material.dart';
@@ -18,8 +19,8 @@ class ErrorDioDescription extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         clipBehavior: Clip.hardEdge,
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: context.surface,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(15),
             topRight: Radius.circular(15),
@@ -63,7 +64,7 @@ class ErrorDioDescription extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => context.pop(),
                     icon: const Icon(Icons.close, size: 30),
                   ),
                 ],

@@ -1,0 +1,28 @@
+name: flutter_typeahead
+version: 6.0.0
+
+platforms:
+  android:
+  ios:
+  linux:
+  macos:
+  web:
+  windows:
+
+description: A highly customizable typeahead (autocomplete) text input field for Flutter
+homepage: https://github.com/AbdulRahmanAlHamali/flutter_typeahead
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.3
+
+flutter:
+  uses-material-design: true

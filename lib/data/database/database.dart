@@ -1,7 +1,16 @@
+import 'package:base_app/data/sqlite_handler/sqlite_handler.dart';
 
+/// Singleton de acceso a la base de datos local de la app.
+///
+/// Para usar SQLite en un módulo:
+/// - exponer el repositorio/local usecase aquí como getter, y
+/// - inicializarlo en el constructor con [sqliteHandler].
+class AppDatabase {
+  AppDatabase._();
 
-import 'package:base_app/domain/repositories/local/local_repository.dart';
+  static final AppDatabase _instance = AppDatabase._();
 
-class Database extends LocalRepository {
+  static AppDatabase getInstance() => _instance;
 
+  final SqliteHandler sqliteHandler = SqliteHandler();
 }

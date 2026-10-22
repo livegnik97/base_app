@@ -1,11 +1,15 @@
 import 'package:base_app/data/dio/custom_response.dart';
+import 'package:base_app/domain/entities/login_entity.dart';
+import 'package:base_app/domain/repositories/remote/dtos/change_password_dto.dart';
+import 'package:base_app/domain/repositories/remote/dtos/login_dto.dart';
+import 'package:base_app/domain/repositories/remote/dtos/register_user_dto.dart';
 
 abstract class AuthRemoteRepository {
-  Future<CustomResponse<String>> login({
-    required String email,
-    required String password,
-    required String firebaseToken,
-  });
+  Future<CustomResponse<LoginEntity>> login(LoginDto dto);
+
+  Future<CustomResponse> register(RegisterUserDto dto);
+
+  Future<CustomResponse> resendVerificationCode({required String email});
 
   Future<CustomResponse> sendCode({required String email});
 
@@ -15,12 +19,9 @@ abstract class AuthRemoteRepository {
     required String password,
   });
 
-  Future<CustomResponse> changePassword({
-    required String oldPassword,
-    required String newPassword,
-  });
+  Future<CustomResponse> changePassword(ChangePasswordDto dto);
 
-  Future<void> logout();
+  Future<CustomResponse> logout();
 
   void setToken(String token);
 }

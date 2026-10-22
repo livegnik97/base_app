@@ -1,9 +1,14 @@
 import 'dart:io';
+import 'dart:math' as math;
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:animate_do/animate_do.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:base_app/core/helpers/custom_log_print.dart';
 
 import '../../constants/imagen_path.dart';
 import 'widgets/view_gallery_image_page.dart';
@@ -17,6 +22,7 @@ class ImageManager {
     required BuildContext context,
     int initialPage = 0,
     required List<ImageItem> imagesItem,
+    final void Function(int)? onChangedPage,
   }) {
     Navigator.of(context).push(
       PageRouteBuilder(
@@ -24,6 +30,7 @@ class ImageManager {
         pageBuilder: (BuildContext context, _, _) => ViewGalleryImagePage(
           initialPage: initialPage,
           imagesItem: imagesItem,
+          onChangedPage: onChangedPage,
         ),
       ),
     );
@@ -343,15 +350,15 @@ class ImageManager {
   static Widget cacheImageNetworkWidget(
     String path, {
     String placeholderPath = ImagenPath.placeholder,
-    Widget? placeholderWidget,
+    Widget? errorWidget,
+    Widget? loadingWidget,
     double? width,
     double? height,
     BoxFit fit = BoxFit.cover,
-    bool withLoading = true,
     OnProgress? onProgress,
   }) {
     final placeholderImage =
-        placeholderWidget ??
+        errorWidget ??
         Image(
           image: AssetImage(placeholderPath),
           width: width,
@@ -370,21 +377,92 @@ class ImageManager {
             ? downloadProgress.progress!
             : -1;
         if (onProgress != null) onProgress(progress);
-        return !withLoading
-            ? placeholderImage
-            : Container(
-                width: width,
-                height: height,
-                color: Colors.black12,
-                child: Center(
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    value: progress != -1 ? progress : null,
-                  ),
+        return loadingWidget ??
+            Container(
+              width: width,
+              height: height,
+              color: Colors.black12,
+              child: Center(
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  value: progress != -1 ? progress : null,
                 ),
-              );
+              ),
+            );
       },
       errorWidget: (context, url, error) => placeholderImage,
     );
+  }
+
+  //* generar imagen de un widget
+  static Future<Uint8List?> captureWidgetScreenshot(
+    BuildContext context,
+    Widget widget,
+  ) async {
+    Uint8List? bytes;
+    final boundaryKey = GlobalKey();
+    final entry = OverlayEntry(
+      builder: (_) => IgnorePointer(
+        child: Center(
+          child: RepaintBoundary(key: boundaryKey, child: widget),
+        ),
+      ),
+    );
+    try {
+      Overlay.of(context).insert(entry);
+      await WidgetsBinding.instance.endOfFrame;
+      final RenderObject? renderObject = boundaryKey.currentContext
+          ?.findRenderObject();
+      await (WidgetsBinding.instance.endOfFrame);
+      bytes = await _captureScreenshot(renderObject);
+    } catch (_) {
+      bytes = null;
+    } finally {
+      entry.remove();
+    }
+    return bytes;
+  }
+
+  /*
+    Para este debes envolver al widget del arbol de widgets en
+    RepaintBoundary y ponerle un key global (GlobalKey).
+  */
+  static Future<Uint8List?> captureGlobalKeyScreenshot(
+    GlobalKey boundaryKey,
+  ) async {
+    Uint8List? bytes;
+    try {
+      final RenderObject? renderObject = boundaryKey.currentContext
+          ?.findRenderObject();
+      bytes = await _captureScreenshot(renderObject);
+    } catch (_) {
+      bytes = null;
+    }
+    return bytes;
+  }
+
+  static Future<Uint8List?> _captureScreenshot(
+    RenderObject? renderObject,
+  ) async {
+    Uint8List? bytes;
+    try {
+      if (renderObject is! RenderRepaintBoundary) {
+        throw StateError('Error al intentar capturar la imagen');
+      }
+
+      double catalogCapturePixelRatio(double logicalHeight) {
+        if (logicalHeight <= 0) return 3.0;
+        return math.min(3.0, 12000 / logicalHeight);
+      }
+
+      final pixelRatio = catalogCapturePixelRatio(renderObject.size.height);
+      final ui.Image image = await renderObject.toImage(pixelRatio: pixelRatio);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      bytes = byteData!.buffer.asUint8List();
+    } catch (e) {
+      CustomPrint.call('Error al intentar capturar la imagen $e');
+      bytes = null;
+    }
+    return bytes;
   }
 }

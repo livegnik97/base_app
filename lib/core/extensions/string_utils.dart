@@ -1,24 +1,28 @@
-// ignore: depend_on_referenced_packages
 import 'package:mime/mime.dart';
 
 extension StringUtils on String {
-  String toPureString() {
+  String clearSpecialCharacters() {
+    return _clearSpecialCharactersFunc(this);
+  }
+
+  String _clearSpecialCharactersFunc(String input) {
     final String withDia =
         'ÀÁÂÃÄÅàáâãäåÒÓÔÕÕÖØòóôõöøÈÉÊËèéêëðÇçÐÌÍÎÏìíîïÙÚÛÜùúûüÑñŠšŸÿýŽž';
     final String withoutDia =
         'AAAAAAaaaaaaOOOOOOOooooooEEEEeeeeeCcDIIIIiiiiUUUUuuuuNnSsYyyZz';
 
-    String thisCad = toString().trim();
+    String value = input.trim();
+
     for (int i = 0; i < withDia.length; i++) {
-      thisCad = thisCad.replaceAll(withDia[i], withoutDia[i]);
+      value = value.replaceAll(withDia[i], withoutDia[i]);
     }
 
-    return thisCad;
+    return value;
   }
 
   bool containsPlusUltra(String term) {
-    String thisCad = toPureString().toLowerCase();
-    String termCad = term.toPureString().toLowerCase();
+    String thisCad = _clearSpecialCharactersFunc(this).toLowerCase();
+    String termCad = _clearSpecialCharactersFunc(term).toLowerCase();
 
     bool isContains = thisCad.contains(termCad);
     if (isContains) return true;

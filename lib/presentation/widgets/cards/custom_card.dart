@@ -1,6 +1,6 @@
 import 'package:base_app/core/constants/constants.dart';
-import 'package:base_app/core/extensions/custom_context.dart';
 import 'package:flutter/material.dart';
+import 'package:base_app/presentation/widgets/containers/custom_container.dart';
 
 class CustomCard extends StatelessWidget {
   const CustomCard({
@@ -37,23 +37,29 @@ class CustomCard extends StatelessWidget {
     if (width != null || height != null) {
       realChild = SizedBox(width: width, height: height, child: realChild);
     }
-    return Card(
-      color: color ?? context.surface,
-      shape:
-          shape ??
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(radius)),
-          ),
-      elevation: elevation,
-      clipBehavior: Clip.hardEdge,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          onLongPress: onLongPress,
-          child: realChild,
-        ),
-      ),
+    return CustomContainer(
+      color: color,
+      onTap: onTap,
+      onLongPress: onLongPress,
+      child: realChild,
     );
+    // return Card(
+    //   color: color ?? context.surface,
+    //   shape:
+    //       shape ??
+    //       RoundedRectangleBorder(
+    //         borderRadius: BorderRadius.all(Radius.circular(radius)),
+    //       ),
+    //   elevation: elevation,
+    //   clipBehavior: Clip.hardEdge,
+    //   child: Material(
+    //     color: Colors.transparent,
+    //     child: InkWell(
+    //       onTap: onTap,
+    //       onLongPress: onLongPress,
+    //       child: realChild,
+    //     ),
+    //   ),
+    // );
   }
 }

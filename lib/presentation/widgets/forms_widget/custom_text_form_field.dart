@@ -1,4 +1,5 @@
 import 'package:base_app/core/constants/constants.dart';
+import 'package:base_app/core/extensions/color_extension.dart';
 import 'package:base_app/core/extensions/custom_context.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -30,6 +31,7 @@ class CustomTextFormField extends StatelessWidget {
   final VoidCallback? onEditingComplete;
   final List<TextInputFormatter>? inputFormatters;
   final Color? backgroundColor;
+  final TapRegionCallback? onTapOutside;
 
   const CustomTextFormField({
     super.key,
@@ -59,12 +61,13 @@ class CustomTextFormField extends StatelessWidget {
     this.onEditingComplete,
     this.inputFormatters,
     this.backgroundColor,
+    this.onTapOutside,
   });
 
   @override
   Widget build(BuildContext context) {
     final border = OutlineInputBorder(
-      borderSide: BorderSide(color: context.surfaceContainerHighest),
+      borderSide: BorderSide(color: context.primary.withOpacity2(0.5)),
       borderRadius: BorderRadius.circular(Constants.borderRadius),
     );
 
@@ -101,10 +104,11 @@ class CustomTextFormField extends StatelessWidget {
             textCapitalization: textCapitalization,
             inputFormatters: inputFormatters,
             onEditingComplete: onEditingComplete,
+            onTapOutside: onTapOutside,
             decoration: InputDecoration(
               prefix: prefix,
               prefixIcon: prefixIcon != null
-                  ? Icon(prefixIcon, color: context.primary)
+                  ? Icon(prefixIcon, color: context.onSurfaceVariant)
                   : null,
               enabledBorder: border,
               disabledBorder: border,
@@ -121,6 +125,10 @@ class CustomTextFormField extends StatelessWidget {
               focusColor: context.primary,
               suffix: suffix,
               suffixIcon: suffixIcon,
+              contentPadding: EdgeInsets.symmetric(
+                vertical: 12,
+                horizontal: 16,
+              ),
             ),
           ),
         ),

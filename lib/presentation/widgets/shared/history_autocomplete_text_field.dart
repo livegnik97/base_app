@@ -1,15 +1,16 @@
 import 'package:base_app/core/extensions/list_utils.dart';
 import 'package:base_app/core/extensions/string_utils.dart';
+import 'package:base_app/core/router/router.dart';
 import 'package:base_app/presentation/widgets/buttons/custom_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_debouncer/flutter_debouncer.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// ignore: implementation_imports
-import 'package:flutter_typeahead/src/common/base/types.dart';
 
 //* agregar al enum los keys para los que se quiere guardar un historial diferente
-enum HistoryAutocompleteKeyEnum { forSearch }
+enum HistoryAutocompleteKeyEnum {
+  forSearch,
+}
 
 class HistoryAutocompleteTextField extends StatefulWidget {
   const HistoryAutocompleteTextField({
@@ -21,15 +22,17 @@ class HistoryAutocompleteTextField extends StatefulWidget {
     this.hideOnEmptyText = true,
     required this.builder,
     required this.historyAutocompleteKey,
+    this.predictiveList,
   });
 
   final HistoryAutocompleteKeyEnum historyAutocompleteKey;
   final TextEditingController? controller;
   final FocusNode? focusNode;
-  final TextFieldBuilder builder;
+  final SuggestionsFieldBuilder builder;
   final Function(String value)? onSelected;
   final int delayToSave;
   final bool hideOnEmptyText;
+  final List<String>? predictiveList;
 
   @override
   State<HistoryAutocompleteTextField> createState() =>
@@ -37,7 +40,8 @@ class HistoryAutocompleteTextField extends StatefulWidget {
 }
 
 class _HistoryAutocompleteTextFieldState
-    extends State<HistoryAutocompleteTextField> {
+    extends State<HistoryAutocompleteTextField>
+    with RouteAware {
   late TextEditingController controller;
   late FocusNode focusNode;
   final SuggestionsController<String> suggestionsController =
@@ -56,11 +60,50 @@ class _HistoryAutocompleteTextFieldState
     controller = widget.controller ?? TextEditingController();
     focusNode = widget.focusNode ?? FocusNode();
     controller.addListener(onTextChanged);
-    loadPredictiveList();
+    Future.delayed(Duration.zero, () async {
+      if (widget.predictiveList != null && widget.predictiveList!.isNotEmpty) {
+        final prefs = await SharedPreferences.getInstance();
+        final list = prefs.getStringList(key) ?? [];
+        final predictiveListNoRepeat = {...widget.predictiveList!};
+        bool existChanged = false;
+        for (final predictiveValue in predictiveListNoRepeat) {
+          final exist =
+              list.firstWhereOrNull(
+                (element) =>
+                    element.toLowerCase() == predictiveValue.toLowerCase(),
+              ) !=
+              null;
+          if (!exist) {
+            existChanged = true;
+            list.add(predictiveValue);
+          }
+        }
+        if (existChanged) {
+          list.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+          prefs.setStringList(key, list);
+        }
+      }
+      loadPredictiveList();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route != null) {
+      routeObserver.subscribe(this, route);
+    }
+  }
+
+  @override
+  void didPushNext() {
+    suggestionsController.close();
   }
 
   @override
   void dispose() {
+    routeObserver.unsubscribe(this);
     if (widget.controller == null) {
       controller.dispose();
     } else {
@@ -80,6 +123,7 @@ class _HistoryAutocompleteTextFieldState
   Widget build(BuildContext context) {
     return TypeAheadField<String>(
       suggestionsController: suggestionsController,
+      // constraints: const BoxConstraints(maxHeight: 300),
       controller: controller,
       focusNode: focusNode,
       suggestionsCallback: (search) => filterSearch(search),

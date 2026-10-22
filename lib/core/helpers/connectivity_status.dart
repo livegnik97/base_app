@@ -88,8 +88,8 @@ class ConnectivityStatus {
     }
     if (!_canCheckedConnection) return;
     _canCheckedConnection = false;
-    List<ConnectivityResult> connectivityResult =
-        await _connectivity.checkConnectivity();
+    List<ConnectivityResult> connectivityResult = await _connectivity
+        .checkConnectivity();
     if (connectivityResult.isEmpty) {
       connectivityResult.add(ConnectivityResult.none);
     }

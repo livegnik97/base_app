@@ -28,12 +28,13 @@ class PasswordInputValidator extends FormzInput<String, PasswordErrorInput> {
 
   // Call super.pure to represent an unmodified form input.
   const PasswordInputValidator.pure({
+    String intialValue = '',
     this.isRequired = true,
     this.beStrict = false,
     this.minLength = 6,
     this.passwordConfirm,
     this.personalValidation,
-  }) : super.pure('');
+  }) : super.pure(intialValue);
 
   // Call super.dirty to represent a modified form input.
   const PasswordInputValidator.dirty(

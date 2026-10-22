@@ -20,8 +20,10 @@ class CustomLoadingWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
-      transitionBuilder: (child, animation) =>
-          ScaleTransition(scale: animation, child: child),
+      transitionBuilder: (child, animation) => ScaleTransition(
+        scale: animation,
+        child: FadeTransition(opacity: animation, child: child),
+      ),
       child: isLoading
           ? LoadingAnimationWidget.threeArchedCircle(
               color: color ?? context.primary,

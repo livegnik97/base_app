@@ -1,44 +1,24 @@
-import 'package:base_app/core/firebase/firebase_options.dart';
+import 'dart:convert';
+
+import 'package:base_app/core/constants/event_bus_constants.dart';
 import 'package:base_app/core/firebase/local_notifications.dart';
 import 'package:base_app/core/helpers/custom_log_print.dart';
-import 'package:base_app/core/helpers/dynamic_parse.dart';
 import 'package:base_app/data/shared_preferences/my_shared.dart';
+import 'package:base_app/core/firebase/firebase_options.dart';
+import 'package:event_bus_riverpod/event_bus_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  CustomPrint.call('notiListen4 ${message.data}');
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // showFlutterNotification(message);
 }
 
-// void showFlutterNotification(RemoteMessage message) async {
-//   final isAuthenticated =
-//       (await MyShared.getStringOrNull(MySharedConstants.accessToken)) != null;
-//   if (isAuthenticated &&
-//       message.data.isNotEmpty &&
-//       message.data.containsKey('xxxId')) {
-//     // await MyShared.setValue(
-//     //   MySharedConstants.notificationXxxId,
-//     //   message.data['xxxId'],
-//     // );
-
-//     // CustomNotification.showNotification(
-//     //   title: message.notification?.title ?? 'Orden asignada',
-//     //   body:
-//     //       message.notification?.body ??
-//     //       'La orden con numero de orden ${message.data['xxxId']} ha sido asignada a usted',
-//     //   payload: {
-//     //     'xxxId': message.data['xxxId'],
-//     //     'message':
-//     //         message.notification?.body ??
-//     //         'La orden con numero de orden ${message.data['xxxId']} ha sido asignada a usted',
-//     //   },
-//     // );
-//   }
-// }
+@pragma('vm:entry-point')
+void notificationTapBackground(NotificationResponse response) {
+  LocalNotifications.selectNotificationHandle(response);
+}
 
 class CustomNotification {
   static void showNotification({
@@ -46,16 +26,16 @@ class CustomNotification {
     required String title,
     required String body,
     Map<String, dynamic>? payload,
+    String? groupKey,
+    bool replaceGroup = true,
   }) async {
-    final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-        FlutterLocalNotificationsPlugin();
-    await LocalNotifications.initialize(flutterLocalNotificationsPlugin);
     await LocalNotifications.showNotification(
       id: id,
       title: title,
       body: body,
       payload: payload,
-      fln: flutterLocalNotificationsPlugin,
+      groupKey: groupKey,
+      replaceGroup: replaceGroup,
     );
   }
 }
@@ -65,17 +45,6 @@ class FirebaseManager {
   static String? deviceToken;
   static FirebaseMessaging messaging = FirebaseMessaging.instance;
   static FirebaseApp? firebaseApp;
-
-  /*
-  MODO DE USO:
-  En un provider donde se van a trabajar las notificaciones se debe inicializar la funcion
-  FirebaseManager.remoteSubscription = processNotification;
-
-  En el dispose del provider se debe hacer:
-  FirebaseManager.remoteSubscription = null;
-  */
-  static Function(String xxxId, bool byUser, {String? message})?
-  remoteSubscription;
 
   static Future<void> init() async {
     if (isInitialized && deviceToken != null) return;
@@ -100,93 +69,62 @@ class FirebaseManager {
         );
         await messaging.setAutoInitEnabled(true);
 
+        //* escucha de actualizaciones del token para mantenerlo siempre fresco
+        messaging.onTokenRefresh.listen((newToken) {
+          deviceToken = newToken;
+          CustomPrint.call('FCM token refreshed: $newToken');
+        });
+
+        //* en iOS el token se deriva del APNs, puede tardar en estar disponible.
+        //* messaging.getAPNSToken().then((apns) {
+        //*   if (apns != null) CustomPrint.call('APNS token obtained: $apns');
+        //* });
+
         FirebaseMessaging.onBackgroundMessage(
           _firebaseMessagingBackgroundHandler,
         );
 
+        //* Cuando la apk esta cerrada, llega una notificacion y la toco
+        //* Tambien funciona si la apk esta en 2do plano, cierras la app y tocas la notificacion
         FirebaseMessaging.instance.getInitialMessage().then((
           RemoteMessage? message,
         ) async {
           if (message != null) {
-            CustomPrint.call('notiListen1 ${message.data}');
-            final isAuthenticated =
-                (await MyShared.getStringOrNull(
-                  MySharedConstants.accessToken,
-                )) !=
-                null;
-            if (isAuthenticated &&
-                message.data.isNotEmpty &&
-                message.data.containsKey('xxxId')) {
-              final xxxId = DynamicParse.toIntOrNull(message.data['xxxId']);
-              if (xxxId != null) {
-                await MyShared.setValue<int>(
-                  MySharedConstants.notificationXxxId,
-                  xxxId,
-                );
-              }
+            CustomPrint.call('noti-listen 1 ${message.data}');
+            await processNotification(message);
+          }
+        });
+
+        //* Notificacion en primer plano cuando está abierta la app, no se crea la notificacion automatica
+        FirebaseMessaging.onMessage.listen((message) async {
+          CustomPrint.call('noti-listen 2 ${message.data}');
+          final isAuthenticated =
+              (await MyShared.getStringOrNull(MySharedConstants.accessToken)) !=
+              null;
+          if (isAuthenticated && message.data.isNotEmpty) {
+            if (message.notification?.title != null &&
+                message.notification?.body != null) {
+              final title = message.notification!.title!;
+              final body = message.notification!.body!;
+              final tag = message.notification?.android?.tag;
+              await LocalNotifications.showNotification(
+                title: title,
+                body: body,
+                payload: message.data,
+                groupKey: tag is String && tag.isNotEmpty ? tag : null,
+              );
+            } else {
+              await processNotification(message);
             }
           }
         });
 
-        FirebaseMessaging.onMessage.listen((message) async {
-          CustomPrint.call('notiListen2 ${message.data}');
-          final isAuthenticated =
-              (await MyShared.getStringOrNull(MySharedConstants.accessToken)) !=
-              null;
-          if (isAuthenticated &&
-              message.data.isNotEmpty &&
-              message.data.containsKey('xxxId')) {
-            remoteSubscription?.call(
-              message.data['xxxId'],
-              false,
-              message: message.notification?.body,
-            );
-            final flutterLocalNotificationsPlugin =
-                FlutterLocalNotificationsPlugin();
-            await LocalNotifications.initialize(
-              flutterLocalNotificationsPlugin,
-            );
-            final messageString =
-                message.notification?.body ??
-                'El objeto X con id ${message.data['xxxId']} se ha notificado';
-            await LocalNotifications.showNotification(
-              title: message.notification?.title ?? 'Titulo de notificación',
-              body: messageString,
-              payload: {
-                'xxxId': message.data['xxxId'],
-                'message': messageString,
-              },
-              fln: flutterLocalNotificationsPlugin,
-            );
-          }
-        });
-
+        //* Cuando la apk está en 2do plano, llega la notificacion y la toco
         FirebaseMessaging.onMessageOpenedApp.listen((
           RemoteMessage message,
         ) async {
-          CustomPrint.call('notiListen3 ${message.data}');
-          final isAuthenticated =
-              (await MyShared.getStringOrNull(MySharedConstants.accessToken)) !=
-              null;
-          if (isAuthenticated &&
-              message.data.isNotEmpty &&
-              message.data.containsKey('xxxId')) {
-            if (remoteSubscription != null) {
-              remoteSubscription?.call(
-                message.data['xxxId'],
-                true,
-                message: message.notification?.body,
-              );
-            } else {
-              final xxxId = DynamicParse.toIntOrNull(message.data['xxxId']);
-              if (xxxId != null) {
-                await MyShared.setValue<int>(
-                  MySharedConstants.notificationXxxId,
-                  xxxId,
-                );
-              }
-            }
-          }
+          CustomPrint.call('noti-listen 3 ${message.data}');
+          await processNotification(message);
         });
       }
     } catch (_) {}
@@ -207,9 +145,42 @@ class FirebaseManager {
   static Future<String?> getToken() async {
     try {
       deviceToken = await messaging.getToken();
-      return deviceToken;
+      if (deviceToken != null) return deviceToken;
+    } on FirebaseException catch (fe) {
+      if (fe.code == 'apns-token-not-set') {
+        CustomPrint.call('APNS token not set yet');
+      } else {
+        rethrow;
+      }
     } catch (e) {
-      return null;
+      CustomPrint.call('Error getting token: $e');
+    }
+    return null;
+  }
+
+  static Future<void> processNotification(RemoteMessage message) async {
+    try {
+      final isAuthenticated =
+          (await MyShared.getStringOrNull(MySharedConstants.accessToken)) !=
+          null;
+      if (isAuthenticated) {
+        if (EventBusGlobal.event(
+          EventBusConstants.onNotificationTapped,
+        ).hasClients) {
+          EventBusGlobal.event(
+            EventBusConstants.onNotificationTapped,
+          ).emit(message.data);
+        } else {
+          await MyShared.setValue<String>(
+            MySharedConstants.notificationPayload,
+            jsonEncode(message.data),
+          );
+        }
+      }
+    } catch (e) {
+      CustomPrint.call(
+        'processNotification Error al procesar la notificación: $e',
+      );
     }
   }
 }

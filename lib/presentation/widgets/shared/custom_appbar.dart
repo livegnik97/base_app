@@ -1,14 +1,19 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:base_app/core/constants/constants.dart';
 import 'package:base_app/core/constants/hero_tags.dart';
 import 'package:base_app/core/extensions/custom_context.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:base_app/presentation/widgets/shared/custom_linear_loading_widget.dart';
+import 'package:base_app/presentation/widgets/shared/theme_change.dart';
 
 // ignore: non_constant_identifier_names
 AppBar CustomAppbar(
   BuildContext context, {
   Key? key,
   bool disableHero = false,
+  bool animateTitleWhenChangeValue = false,
+  String? subtitle,
 
   Widget? leading,
   bool automaticallyImplyLeading = true,
@@ -45,12 +50,15 @@ AppBar CustomAppbar(
   Clip? clipBehavior,
   EdgeInsetsGeometry? actionsPadding,
   bool animateColor = false,
+  bool isLoading = false,
 }) {
-  Widget? titleLabel;
+  Widget? titleReal = titleWidget;
   if (title != null && titleWidget == null) {
-    titleLabel = Row(
+    titleReal = Row(
+      key: animateTitleWhenChangeValue ? Key('$title-appbar-title') : null,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Expanded(
+        Flexible(
           child: AutoSizeText(
             title,
             style: context.titleLarge,
@@ -60,23 +68,77 @@ AppBar CustomAppbar(
         ),
       ],
     );
-    if (!disableHero) {
-      titleLabel = Hero(
-        tag: HeroTags.appbarTitle,
-        child: Material(color: Colors.transparent, child: titleLabel),
+    if (animateTitleWhenChangeValue) {
+      titleReal = AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          return ScaleTransition(
+            scale: animation,
+            child: FadeTransition(opacity: animation, child: child),
+          );
+        },
+        child: titleReal,
+      );
+    }
+    if (subtitle != null) {
+      final subtitleWidget = Row(
+        key: animateTitleWhenChangeValue
+            ? Key('$subtitle-appbar-subtitle')
+            : null,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: AutoSizeText(
+              subtitle,
+              style: context.titleSmall,
+              maxLines: 1,
+              minFontSize: 1,
+            ),
+          ),
+        ],
+      );
+      titleReal = FittedBox(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            titleReal,
+            if (animateTitleWhenChangeValue)
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return ScaleTransition(scale: animation, child: child);
+                },
+                child: subtitleWidget,
+              ),
+            if (!animateTitleWhenChangeValue) subtitleWidget,
+          ],
+        ),
       );
     }
   }
+  if (!disableHero) {
+    titleReal = Hero(
+      tag: HeroTags.appbarTitle,
+      child: Material(color: Colors.transparent, child: titleReal),
+    );
+  }
+  List<Widget>? realActions = actions;
+  if (Constants.isDev && Constants.showThemeChangeInCustomAppBar) {
+    realActions ??= [];
+    realActions.insert(
+      0,
+      ThemeChangeWidget(),
+    );
+  }
   return AppBar(
     key: key,
-    title: titleWidget ?? titleLabel,
+    title: titleReal,
     //* default
     leading: leading,
     automaticallyImplyLeading: automaticallyImplyLeading,
-    actions: actions,
+    actions: realActions,
     automaticallyImplyActions: automaticallyImplyActions,
     flexibleSpace: flexibleSpace,
-    bottom: bottom,
     elevation: elevation,
     scrolledUnderElevation: scrolledUnderElevation,
     notificationPredicate: notificationPredicate,
@@ -103,5 +165,16 @@ AppBar CustomAppbar(
     clipBehavior: clipBehavior,
     actionsPadding: actionsPadding,
     animateColor: animateColor,
+    bottom: PreferredSize(
+      preferredSize: Size.fromHeight(
+        4 + (bottom?.preferredSize.height ?? 0),
+      ),
+      child: Column(
+        children: <Widget>[
+          CustomLinearLoadingWidget(isLoading: isLoading, height: 4),
+          ?bottom,
+        ],
+      ),
+    ),
   );
 }

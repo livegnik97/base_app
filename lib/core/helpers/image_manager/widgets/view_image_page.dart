@@ -79,20 +79,22 @@ class ViewImagePage extends StatelessWidget {
 
     return showBtnClose
         ? Stack(
-          children: [
-            Positioned.fill(child: body),
-            Positioned(
-              right: 10,
-              top: 15,
-              child: IconButton(
-                onPressed: () {
-                  context.pop();
-                },
-                icon: const Icon(Icons.close_outlined, color: Colors.white),
+            children: [
+              Positioned.fill(child: body),
+              Positioned(
+                right: 8,
+                top: 0,
+                child: SafeArea(
+                  child: IconButton(
+                    onPressed: () {
+                      context.pop();
+                    },
+                    icon: const Icon(Icons.close_outlined, color: Colors.white),
+                  ),
+                ),
               ),
-            ),
-          ],
-        )
+            ],
+          )
         : body;
   }
 

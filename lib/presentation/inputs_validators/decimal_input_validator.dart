@@ -16,11 +16,12 @@ class DecimalInputValidator extends FormzInput<String, DecimalErrorInput> {
 
   // Call super.pure to represent an unmodified form input.
   const DecimalInputValidator.pure({
+    String intialValue = '',
     this.isRequired = true,
     this.personalValidation,
     this.minValue,
     this.maxValue,
-  }) : super.pure("");
+  }) : super.pure(intialValue);
 
   // Call super.dirty to represent a modified form input.
   const DecimalInputValidator.dirty(

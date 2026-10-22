@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class GlassMorphismWidget extends StatelessWidget {
-  const GlassMorphismWidget({super.key, this.blur = 1, this.child});
+  const GlassMorphismWidget({super.key, this.blur = 4, this.child});
 
   final double blur;
   final Widget? child;

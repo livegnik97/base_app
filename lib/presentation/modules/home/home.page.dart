@@ -131,7 +131,7 @@ class HomePage extends ConsumerWidget {
                                 const Duration(milliseconds: 100),
                               );
                             }
-                            if (!isCloseDialog) {
+                            if (!isCloseDialog && context.mounted) {
                               context.pop();
                             }
                           },

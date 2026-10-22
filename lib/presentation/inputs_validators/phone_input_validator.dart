@@ -1,6 +1,6 @@
-import 'package:base_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:formz/formz.dart';
+import 'package:base_app/l10n/app_localizations.dart';
 
 import 'inputs.dart';
 
@@ -9,23 +9,34 @@ enum PhoneErrorInput { empty, format, personalValidation }
 
 // Extend FormzInput and provide the input type and error type.
 class PhoneInputValidator extends FormzInput<String, PhoneErrorInput> {
-  static final RegExp phoneRegExp = RegExp(
-    r'^[+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$',
-  );
+  RegExp get phoneRegExp {
+    // Nuevo regex para números cubanos: +53 seguido de exactamente 8 dígitos
+    //* Ejemplo:  RegExp(r'^\+53\d{8}$');
+    String pattern = '^\\$prefix\\d{$maxLength}\$';
+    // ignore: prefer_interpolation_to_compose_strings
+    return RegExp(r'' + pattern + '');
+  }
 
   final bool isRequired;
+  final String prefix;
+  final int maxLength;
   final PersonalValidation? personalValidation;
 
   // Call super.pure to represent an unmodified form input.
   const PhoneInputValidator.pure({
+    String intialValue = '',
     this.isRequired = true,
+    required this.prefix,
+    required this.maxLength,
     this.personalValidation,
-  }) : super.pure('');
+  }) : super.pure(intialValue);
 
   // Call super.dirty to represent a modified form input.
   const PhoneInputValidator.dirty(
     super.value, {
     this.isRequired = true,
+    required this.prefix,
+    required this.maxLength,
     this.personalValidation,
   }) : super.dirty();
 
@@ -54,7 +65,13 @@ class PhoneInputValidator extends FormzInput<String, PhoneErrorInput> {
         return null;
       }
     }
-    // if (!phoneRegExp.hasMatch(value)) return PhoneErrorInput.format;
+
+    // Normalizar: eliminar espacios y guiones para validar solo dígitos y +
+    final normalized = value.replaceAll(RegExp(r'[\s-]'), '');
+    if (!phoneRegExp.hasMatch(normalized)) {
+      return PhoneErrorInput.format;
+    }
+
     if (personalValidation != null && !personalValidation!(value).isValid) {
       return PhoneErrorInput.personalValidation;
     }

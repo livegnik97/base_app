@@ -1,5 +1,1 @@
-
-
-abstract class LocalRepository {
-
-}
+abstract class LocalRepository {}

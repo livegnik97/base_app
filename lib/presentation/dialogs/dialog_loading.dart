@@ -4,7 +4,6 @@ import 'package:base_app/l10n/app_localizations.dart';
 import 'package:base_app/presentation/widgets/buttons/custom_filled_button.dart';
 import 'package:base_app/presentation/widgets/shared/custom_loading_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class DialogLoadingController extends ChangeNotifier {
   double? _progress;
@@ -12,6 +11,17 @@ class DialogLoadingController extends ChangeNotifier {
 
   bool _showActionCancel = false;
   bool get showActionCancel => _showActionCancel;
+
+  bool _close = false;
+  bool get shouldClose => _close;
+
+  void close() {
+    try {
+      if (_close) return;
+      _close = true;
+      notifyListeners();
+    } catch (_) {}
+  }
 
   void updateProgress(double? progress) {
     try {
@@ -72,6 +82,8 @@ class _DialogLoadingState extends State<DialogLoading> {
 
   double? progress;
 
+  bool _isCloseSelf = false;
+
   @override
   void initState() {
     super.initState();
@@ -87,6 +99,7 @@ class _DialogLoadingState extends State<DialogLoading> {
       }
     }
     widget.dialogProgressController?.addListener(progressListener);
+    widget.dialogProgressController?.addListener(closeListener);
   }
 
   @override
@@ -99,6 +112,7 @@ class _DialogLoadingState extends State<DialogLoading> {
   @override
   void dispose() {
     widget.dialogProgressController?.removeListener(progressListener);
+    widget.dialogProgressController?.removeListener(closeListener);
     super.dispose();
   }
 
@@ -116,8 +130,10 @@ class _DialogLoadingState extends State<DialogLoading> {
                 child: Center(
                   child: AnimatedSwitcher(
                     duration: Duration(milliseconds: 300),
-                    transitionBuilder: (child, animation) =>
-                        ScaleTransition(scale: animation, child: child),
+                    transitionBuilder: (child, animation) => ScaleTransition(
+                      scale: animation,
+                      child: FadeTransition(opacity: animation, child: child),
+                    ),
                     child: progress != null
                         ? Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 2),
@@ -156,9 +172,7 @@ class _DialogLoadingState extends State<DialogLoading> {
             child: CustomFilledButton(
               label: AppLocalizations.of(context)!.cancel,
               color: widget.color,
-              onPressed: () {
-                context.pop();
-              },
+              onPressed: _closeSelf,
             ),
           ),
           crossFadeState: showActionCancel
@@ -176,6 +190,28 @@ class _DialogLoadingState extends State<DialogLoading> {
       showActionCancel =
           widget.dialogProgressController?.showActionCancel ?? showActionCancel;
       setState(() {});
+    } catch (_) {}
+  }
+
+  void closeListener() {
+    if (widget.dialogProgressController?.shouldClose != true) return;
+    _closeSelf();
+  }
+
+  //* Cierra SOLO esta ruta (el diálogo), sin tocar nada más del navigator
+  void _closeSelf() {
+    try {
+      if (_isCloseSelf) return;
+      _isCloseSelf = true;
+      if (!mounted) return;
+      final route = ModalRoute.of(context);
+      final navigator = route?.navigator;
+      if (route == null || navigator == null) return;
+      if (route.isCurrent) {
+        navigator.pop();
+      } else {
+        navigator.removeRoute(route);
+      }
     } catch (_) {}
   }
 }

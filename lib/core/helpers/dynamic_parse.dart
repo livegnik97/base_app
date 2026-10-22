@@ -48,6 +48,8 @@ class DynamicParse {
     if (data == null) return null;
     if (data is bool) return data;
     try {
+      if ('$data' == '0') return false;
+      if ('$data' == '1') return true;
       return bool.parse('$data');
     } catch (e) {
       if (printErrors) {
@@ -202,5 +204,27 @@ class DynamicParse {
       }
     }
     return result;
+  }
+
+  static DateTime toDateTime(dynamic data, DateTime defaultValue) {
+    return toDateTimeOrNull(data) ?? defaultValue;
+  }
+
+  static DateTime? toDateTimeOrNull(dynamic data) {
+    if (data == null) return null;
+    if (data is DateTime) return data;
+    try {
+      return DateTime.parse('$data');
+    } catch (e) {
+      if (printErrors) {
+        CustomPrint.call("DynamicParseError general: $e");
+        CustomPrint.call(
+          "DynamicParseError when trying to parse data of type ${data.runtimeType} to DateTime",
+        );
+        CustomPrint.call("DynamicParseError data: $data");
+        if (forceCrash) rethrow;
+      }
+    }
+    return null;
   }
 }

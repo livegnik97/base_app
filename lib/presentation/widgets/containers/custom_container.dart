@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:base_app/core/constants/constants.dart';
+import 'package:base_app/core/extensions/color_extension.dart';
 import 'package:base_app/core/extensions/custom_context.dart';
 import 'package:flutter/material.dart';
 
@@ -17,7 +18,12 @@ class CustomContainer extends StatelessWidget {
     this.width,
     this.height,
     this.withBorder = false,
+    this.withShadow = true,
     this.border,
+    this.gradient,
+    this.constraints,
+    this.boxShadow,
+    this.borderRadius,
   });
 
   final Widget? child;
@@ -30,7 +36,12 @@ class CustomContainer extends StatelessWidget {
   final double? width;
   final double? height;
   final bool withBorder;
+  final bool withShadow;
   final BoxBorder? border;
+  final Gradient? gradient;
+  final BoxConstraints? constraints;
+  final List<BoxShadow>? boxShadow;
+  final BorderRadiusGeometry? borderRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -44,17 +55,33 @@ class CustomContainer extends StatelessWidget {
     } else if (withBorder) {
       borderWidth = 1;
     }
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      constraints: constraints,
       width: width,
       height: height,
       margin: margin,
       decoration: BoxDecoration(
         color: color ?? context.surface,
-        borderRadius: BorderRadius.circular(radius + borderWidth),
+        borderRadius: borderRadius ?? BorderRadius.circular(radius),
+        gradient: gradient,
         border:
             border ??
             (withBorder
                 ? Border.all(color: context.surfaceContainerHighest, width: 1)
+                : null),
+
+        boxShadow:
+            boxShadow ??
+            (withShadow
+                ? [
+                    BoxShadow(
+                      color: context.primary.withOpacity2(.05),
+                      // color: context.outline.withOpacity2(.2),
+                      blurRadius: 4,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
                 : null),
       ),
       clipBehavior: Clip.hardEdge,
@@ -62,6 +89,7 @@ class CustomContainer extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           // splashColor: Colors.blue.withAlpha(30),
+          borderRadius: BorderRadius.all(Radius.circular(radius - borderWidth)),
           onTap: onTap,
           onLongPress: onLongPress,
           child: realChild,

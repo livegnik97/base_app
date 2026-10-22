@@ -1,11 +1,13 @@
 import 'package:animate_do/animate_do.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:base_app/core/extensions/custom_context.dart';
 import 'package:base_app/l10n/app_localizations.dart';
 import 'package:base_app/presentation/widgets/buttons/custom_filled_button.dart';
-import 'package:base_app/presentation/widgets/buttons/custom_outlined_button.dart';
+import 'package:base_app/presentation/widgets/buttons/custom_text_button.dart';
 import 'package:base_app/presentation/widgets/forms_widget/custom_text_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:base_app/presentation/widgets/shared/custom_loading_widget.dart';
 
 class DialogConfirmWithTextField extends StatefulWidget {
   const DialogConfirmWithTextField({
@@ -25,6 +27,8 @@ class DialogConfirmWithTextField extends StatefulWidget {
     this.textCapitalization = TextCapitalization.none,
     this.colorConfirmButton,
     this.colorCancelButton,
+    this.canBeEmpty = false,
+    this.maxLines = 1,
   });
 
   final String title;
@@ -42,6 +46,8 @@ class DialogConfirmWithTextField extends StatefulWidget {
   final TextCapitalization textCapitalization;
   final Color? colorConfirmButton;
   final Color? colorCancelButton;
+  final bool canBeEmpty;
+  final int maxLines;
 
   @override
   State<DialogConfirmWithTextField> createState() =>
@@ -81,25 +87,30 @@ class _DialogConfirmWithTextFieldState
     }
   }
 
+  bool get isFormValid =>
+      widget.canBeEmpty || controller.text.trim().isNotEmpty;
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(width: double.infinity),
-          Text(
+          AutoSizeText(
             widget.title,
-            style: context.titleLarge,
-            maxLines: 1,
-            textAlign: TextAlign.center,
+            style: context.titleLarge.copyWith(fontWeight: FontWeight.bold),
+            maxLines: 2,
+            minFontSize: 1,
           ),
           if (widget.message != null) ...[
-            const SizedBox(height: 8),
-            Text(
+            const SizedBox(height: 16),
+            AutoSizeText(
               widget.message!,
-              style: context.bodySmall,
-              textAlign: TextAlign.center,
+              style: context.bodySmall.copyWith(fontSize: 14),
+              textAlign: TextAlign.start,
+              minFontSize: 12,
             ),
           ],
           const SizedBox(height: 24),
@@ -109,8 +120,9 @@ class _DialogConfirmWithTextFieldState
             textCapitalization: widget.textCapitalization,
             focusNode: focusNode,
             textInputAction: TextInputAction.go,
+            maxLines: widget.maxLines,
             onFieldSubmitted: (value) {
-              if (controller.text.trim().isNotEmpty) {
+              if (isFormValid) {
                 save();
               }
             },
@@ -135,46 +147,48 @@ class _DialogConfirmWithTextFieldState
           AnimatedCrossFade(
             firstChild: const Padding(
               padding: EdgeInsets.all(8.0),
-              child: CircularProgressIndicator(color: Colors.black),
-            ),
-            secondChild: ConstrainedBox(
-              constraints: BoxConstraints(minWidth: context.width * 0.6),
-              child: CustomFilledButton(
-                label:
-                    widget.aceptBottonText ??
-                    AppLocalizations.of(context)!.accept,
-                height: 50,
-                color: widget.colorConfirmButton,
-                onPressed: controller.text.trim().isNotEmpty
-                    ? () async {
-                        save();
-                      }
-                    : null,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CustomLoadingWidget(),
+                ],
               ),
+            ),
+            secondChild: Row(
+              mainAxisSize: MainAxisSize.max,
+              // crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                SizedBox(
+                  width: 20,
+                ),
+                if (widget.showCancelOption)
+                  CustomTextButton(
+                    label:
+                        widget.cancelBottonText ??
+                        AppLocalizations.of(context)!.cancel,
+                    onPressed: () async {
+                      context.pop();
+                    },
+                  ),
+                CustomFilledButton(
+                  onPressed: isFormValid
+                      ? () async {
+                          save();
+                        }
+                      : null,
+                  color: widget.colorConfirmButton,
+                  label:
+                      widget.aceptBottonText ??
+                      AppLocalizations.of(context)!.accept,
+                ),
+              ],
             ),
             crossFadeState: !loading
                 ? CrossFadeState.showSecond
                 : CrossFadeState.showFirst,
             duration: const Duration(milliseconds: 300),
           ),
-          if (widget.showCancelOption) ...[
-            const SizedBox(height: 8),
-            ConstrainedBox(
-              constraints: BoxConstraints(minWidth: context.width * 0.6),
-              child: CustomOutlinedButton(
-                label:
-                    widget.cancelBottonText ??
-                    AppLocalizations.of(context)!.cancel,
-                height: 50,
-                color: widget.colorCancelButton,
-                onPressed: loading
-                    ? null
-                    : () async {
-                        context.pop();
-                      },
-              ),
-            ),
-          ],
         ],
       ),
     );
@@ -193,7 +207,8 @@ class _DialogConfirmWithTextFieldState
     errorMessage = null;
     setState(() {});
     errorMessage = await widget.onConfirm.call(controller.text.trim());
-    if (errorMessage == null) {
+    if (errorMessage == null && context.mounted) {
+      // ignore: use_build_context_synchronously
       context.pop();
     } else {
       loading = false;
@@ -203,7 +218,7 @@ class _DialogConfirmWithTextFieldState
 
   void check() {
     setState(() {
-      if (controller.text.trim().isEmpty) {
+      if (!isFormValid) {
         errorMessage = "Este campo no puede estar vacío";
       } else {
         errorMessage = null;

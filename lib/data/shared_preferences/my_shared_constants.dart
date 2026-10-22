@@ -2,8 +2,9 @@ part of 'my_shared.dart';
 
 class MySharedConstants {
   static String get accessToken => "accessToken";
+  static String get userId => "userId";
   static String get userData => "userData";
-  static String get notificationXxxId => "notificationXxxId";
+  static String get notificationPayload => "notificationPayload";
 
   /*
   themeModeSelect
@@ -14,9 +15,21 @@ class MySharedConstants {
   static String get themeModeSelect => "themeModeSelect";
 
   /*
-  themeModeSelect
+  languageSelect
   es - Español
   en - Inglés
   */
   static String get languageSelect => "languageSelect";
+
+  /*
+  lastMainRoute
+  Guarda la última ruta principal visitada (ej: /app/home)
+  */
+  static String get lastMainRoute => "lastMainRoute";
+
+  /*
+  onboardingCompleted
+  Indica si el usuario ya vio el onboarding al menos una vez.
+  */
+  static String get onboardingCompleted => "onboardingCompleted";
 }

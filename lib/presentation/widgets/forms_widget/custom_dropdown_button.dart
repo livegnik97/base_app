@@ -42,6 +42,7 @@ class CustomDropdownButton<T> extends StatelessWidget {
               underline: Container(),
               onChanged: onChanged,
               hint: Text(hint),
+              borderRadius: BorderRadius.circular(20),
               items: items
                   .map(
                     (item) => DropdownMenuItem<T>(

@@ -16,11 +16,12 @@ class NumberInputValidator extends FormzInput<String, NumberErrorInput> {
 
   // Call super.pure to represent an unmodified form input.
   const NumberInputValidator.pure({
+    String intialValue = '',
     this.isRequired = true,
     this.personalValidation,
     this.minValue,
     this.maxValue,
-  }) : super.pure("");
+  }) : super.pure(intialValue);
 
   // Call super.dirty to represent a modified form input.
   const NumberInputValidator.dirty(

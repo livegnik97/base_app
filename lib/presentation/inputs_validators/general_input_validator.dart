@@ -14,9 +14,10 @@ class GeneralInputValidator extends FormzInput<String, GeneralErrorInput> {
 
   // Call super.pure to represent an unmodified form input.
   const GeneralInputValidator.pure({
+    String intialValue = '',
     this.isRequired = true,
     this.personalValidation,
-  }) : super.pure('');
+  }) : super.pure(intialValue);
 
   // Call super.dirty to represent a modified form input.
   const GeneralInputValidator.dirty(

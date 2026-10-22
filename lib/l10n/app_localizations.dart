@@ -241,6 +241,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Seleccione el idioma que deseas para trabajar en la aplicación. En los ajustes puedes volver a cambiarlo cuando quieras.'**
   String get selectLanguageDetails;
+
+  /// No description provided for @errorType_paginationIndexOfBounds.
+  ///
+  /// In en, this message translates to:
+  /// **'No more items.'**
+  String get errorType_paginationIndexOfBounds;
+
+  /// No description provided for @errorType_unknownError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown error.'**
+  String get errorType_unknownError;
+
+  /// No description provided for @errorType_error.
+  ///
+  /// In en, this message translates to:
+  /// **'An error has occurred.'**
+  String get errorType_error;
+
+  /// No description provided for @errorType_createError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error creating the item.'**
+  String get errorType_createError;
+
+  /// No description provided for @errorType_alreadyExists.
+  ///
+  /// In en, this message translates to:
+  /// **'The item already exists.'**
+  String get errorType_alreadyExists;
+
+  /// No description provided for @errorType_notFound.
+  ///
+  /// In en, this message translates to:
+  /// **'The item does not exist.'**
+  String get errorType_notFound;
+
+  /// No description provided for @errorType_updateOrDeleteViolatesForeignKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Some value of the item already exists.'**
+  String get errorType_updateOrDeleteViolatesForeignKey;
+
+  /// No description provided for @errorType_emptyFields.
+  ///
+  /// In en, this message translates to:
+  /// **'Fields cannot be empty.'**
+  String get errorType_emptyFields;
+
+  /// No description provided for @errorType_errorSaveFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Error saving the file.'**
+  String get errorType_errorSaveFile;
+
+  /// No description provided for @errorType_userNotActive.
+  ///
+  /// In en, this message translates to:
+  /// **'The user is not active.'**
+  String get errorType_userNotActive;
+
+  /// No description provided for @errorType_userIsBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'The user is blocked.'**
+  String get errorType_userIsBlocked;
+
+  /// No description provided for @errorType_userOrPasswordIncorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect username or password.'**
+  String get errorType_userOrPasswordIncorrect;
+
+  /// No description provided for @errorType_unauthorized.
+  ///
+  /// In en, this message translates to:
+  /// **'Unauthorized.'**
+  String get errorType_unauthorized;
+
+  /// No description provided for @errorType_errorSendMail.
+  ///
+  /// In en, this message translates to:
+  /// **'Error sending the email.'**
+  String get errorType_errorSendMail;
+
+  /// No description provided for @errorType_insufficientPermissions.
+  ///
+  /// In en, this message translates to:
+  /// **'Insufficient permissions.'**
+  String get errorType_insufficientPermissions;
+
+  /// No description provided for @errorType_noFileUploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'No file has been uploaded.'**
+  String get errorType_noFileUploaded;
+
+  /// No description provided for @errorType_incorrectGoogleVerification.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect Google verification. Are you sure you signed in with Google?'**
+  String get errorType_incorrectGoogleVerification;
+
+  /// No description provided for @errorType_incorrectGoogleClientId.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect Google client ID, does not match your account.'**
+  String get errorType_incorrectGoogleClientId;
+
+  /// No description provided for @errorType_userDoesNotMeetRequirements.
+  ///
+  /// In en, this message translates to:
+  /// **'The user does not meet the requirements. Verify your personal data.'**
+  String get errorType_userDoesNotMeetRequirements;
+
+  /// No description provided for @errorType_userNotConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'The user is not connected.'**
+  String get errorType_userNotConnected;
+
+  /// No description provided for @errorType_invalidForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid form.'**
+  String get errorType_invalidForm;
+
+  /// No description provided for @errorType_errorCompressImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Error compressing image.'**
+  String get errorType_errorCompressImage;
+
+  /// No description provided for @errorType_invalidField.
+  ///
+  /// In en, this message translates to:
+  /// **'The value of one of the fields is not valid.'**
+  String get errorType_invalidField;
+
+  /// No description provided for @errorType_serviceNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The service is not available.'**
+  String get errorType_serviceNotAvailable;
 }
 
 class _AppLocalizationsDelegate
